@@ -1,9 +1,23 @@
 
+import { db } from '../db';
+import { evSpecsTable } from '../db/schema';
 import { type EvSpec } from '../schema';
 
 export const getEvSpecs = async (): Promise<EvSpec[]> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all available EV specifications from the database.
-    // This allows retailers to see all available EV models for value estimation.
-    return [];
+  try {
+    const results = await db.select()
+      .from(evSpecsTable)
+      .execute();
+
+    // Convert numeric fields back to numbers
+    return results.map(spec => ({
+      ...spec,
+      battery_capacity_kwh: parseFloat(spec.battery_capacity_kwh),
+      efficiency_kwh_per_100km: parseFloat(spec.efficiency_kwh_per_100km),
+      max_charging_power_kw: parseFloat(spec.max_charging_power_kw)
+    }));
+  } catch (error) {
+    console.error('Failed to fetch EV specs:', error);
+    throw error;
+  }
 };
